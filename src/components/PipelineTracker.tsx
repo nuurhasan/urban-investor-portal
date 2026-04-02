@@ -106,7 +106,7 @@ const PipelineTracker = () => {
         {stageCounts.map(({ stage, count }) => (
           <Card key={stage} className="text-center">
             <CardContent className="pt-4 pb-3">
-              <p className="text-2xl font-heading font-bold text-secondary">{count}</p>
+              <p className="text-2xl font-number font-bold text-secondary">{count}</p>
               <p className="text-xs text-muted-foreground mt-1">{STATUS_LABELS[stage]}</p>
             </CardContent>
           </Card>
