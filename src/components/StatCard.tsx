@@ -14,7 +14,7 @@ const StatCard = ({ label, value, className }: StatCardProps) => {
         className
       )}
     >
-      <p className="font-heading text-2xl font-bold text-primary">{value}</p>
+      <p className="font-number text-2xl font-bold text-primary">{value}</p>
       <p className="mt-1 text-sm text-muted-foreground font-body">{label}</p>
     </div>
   );

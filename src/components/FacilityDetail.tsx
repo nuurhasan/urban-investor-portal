@@ -73,7 +73,7 @@ const EditableStatBox = ({
   return (
     <div className="rounded-lg border border-border bg-card p-3 text-center group relative">
       <Icon className="mx-auto h-4 w-4 text-primary" />
-      <p className="mt-1 text-lg font-bold font-heading text-secondary">{def.format(value)}</p>
+      <p className="mt-1 text-lg font-bold font-number text-secondary">{def.format(value)}</p>
       <p className="text-[11px] text-muted-foreground">{def.label}</p>
       {isAdmin && (
         <button onClick={startEdit} className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground">

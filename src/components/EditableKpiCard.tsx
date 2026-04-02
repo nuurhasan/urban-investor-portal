@@ -52,7 +52,7 @@ const EditableKpiCard = ({ kpi, className }: Props) => {
 
   return (
     <div className={cn("rounded-lg bg-card p-5 shadow-sm border-t-4 border-t-primary group relative", className)}>
-      <p className="font-heading text-2xl font-bold text-primary">{kpi.value}</p>
+      <p className="font-number text-2xl font-bold text-primary">{kpi.value}</p>
       <p className="mt-1 text-sm text-muted-foreground font-body">{kpi.label}</p>
       {isAdmin && (
         <button
