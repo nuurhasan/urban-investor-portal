@@ -45,7 +45,7 @@ const EditableText = ({ contentKey, currentValue, field, as: Tag = "p", classNam
   }
 
   return (
-    <div className="group relative inline-block">
+    <div className="group relative">
       <Tag className={className}>{currentValue || "Click to edit"}</Tag>
       {isAdmin && (
         <button
