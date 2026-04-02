@@ -12,17 +12,17 @@ import { Loader2 } from "lucide-react";
 const Login = () => {
   const { session } = useAuth();
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
 
   // Redirect if already authenticated
   if (session) {
     navigate("/", { replace: true });
     return null;
   }
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
