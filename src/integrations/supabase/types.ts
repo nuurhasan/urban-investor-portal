@@ -14,6 +14,157 @@ export type Database = {
   }
   public: {
     Tables: {
+      facilities: {
+        Row: {
+          address: string | null
+          annual_revenue: number | null
+          city: string | null
+          country: string | null
+          created_at: string
+          estimated_value: number | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name: string
+          net_lettable_area: number | null
+          net_operating_income: number | null
+          occupancy_pct: number | null
+          overview_text: string | null
+          postcode: string | null
+          revenue_per_unit: number | null
+          sort_order: number
+          state: string | null
+          status: string
+          thumbnail_url: string | null
+          total_units: number | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          annual_revenue?: number | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          estimated_value?: number | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          net_lettable_area?: number | null
+          net_operating_income?: number | null
+          occupancy_pct?: number | null
+          overview_text?: string | null
+          postcode?: string | null
+          revenue_per_unit?: number | null
+          sort_order?: number
+          state?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          total_units?: number | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          annual_revenue?: number | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          estimated_value?: number | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          net_lettable_area?: number | null
+          net_operating_income?: number | null
+          occupancy_pct?: number | null
+          overview_text?: string | null
+          postcode?: string | null
+          revenue_per_unit?: number | null
+          sort_order?: number
+          state?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          total_units?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      facility_photos: {
+        Row: {
+          caption: string | null
+          created_at: string
+          facility_id: string
+          id: string
+          sort_order: number
+          url: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          facility_id: string
+          id?: string
+          sort_order?: number
+          url: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          facility_id?: string
+          id?: string
+          sort_order?: number
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "facility_photos_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      facility_unit_mixes: {
+        Row: {
+          created_at: string
+          facility_id: string
+          id: string
+          monthly_rate: number | null
+          sort_order: number
+          unit_count: number
+          unit_size_sqm: number | null
+          unit_type: string
+        }
+        Insert: {
+          created_at?: string
+          facility_id: string
+          id?: string
+          monthly_rate?: number | null
+          sort_order?: number
+          unit_count?: number
+          unit_size_sqm?: number | null
+          unit_type: string
+        }
+        Update: {
+          created_at?: string
+          facility_id?: string
+          id?: string
+          monthly_rate?: number | null
+          sort_order?: number
+          unit_count?: number
+          unit_size_sqm?: number | null
+          unit_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "facility_unit_mixes_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kpi_values: {
         Row: {
           created_at: string
