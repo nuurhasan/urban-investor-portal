@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      board_members: {
+        Row: {
+          bio: string | null
+          created_at: string
+          id: string
+          name: string
+          photo_url: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          photo_url?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          photo_url?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       facilities: {
         Row: {
           address: string | null
