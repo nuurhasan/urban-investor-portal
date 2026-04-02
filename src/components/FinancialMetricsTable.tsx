@@ -9,10 +9,9 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Check, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -41,6 +40,55 @@ interface Props {
   icon: React.ReactNode;
 }
 
+const InlineEditRow = ({
+  metric,
+  onSave,
+  onCancel,
+  saving,
+}: {
+  metric: FinancialMetric;
+  onSave: (m: FinancialMetric) => void;
+  onCancel: () => void;
+  saving: boolean;
+}) => {
+  const [label, setLabel] = useState(metric.label);
+  const [period, setPeriod] = useState(metric.period);
+  const [value, setValue] = useState(metric.value);
+
+  return (
+    <TableRow>
+      <TableCell>
+        <Input value={label} onChange={(e) => setLabel(e.target.value)} className="h-8 text-sm" />
+      </TableCell>
+      <TableCell>
+        <Input value={period} onChange={(e) => setPeriod(e.target.value)} className="h-8 text-sm w-24" />
+      </TableCell>
+      <TableCell>
+        <Input
+          type="number"
+          value={value}
+          onChange={(e) => setValue(parseFloat(e.target.value) || 0)}
+          className="h-8 text-sm w-28 text-right"
+        />
+      </TableCell>
+      <TableCell className="text-right">
+        <div className="flex gap-1 justify-end">
+          <button
+            onClick={() => onSave({ ...metric, label, period, value })}
+            disabled={saving}
+            className="text-primary hover:text-primary/80"
+          >
+            <Check className="h-4 w-4" />
+          </button>
+          <button onClick={onCancel} className="text-muted-foreground hover:text-foreground">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+};
+
 const FinancialMetricsTable = ({ category, icon }: Props) => {
   const { isAdmin } = useAuth();
   const { data: allMetrics, isLoading } = useFinancialMetrics();
@@ -48,6 +96,7 @@ const FinancialMetricsTable = ({ category, icon }: Props) => {
   const remove = useDeleteFinancialMetric();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<Partial<FinancialMetric>>(emptyMetric);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const metrics = allMetrics?.filter((m) => m.category === category) ?? [];
 
@@ -69,9 +118,14 @@ const FinancialMetricsTable = ({ category, icon }: Props) => {
     );
   };
 
-  const handleEdit = (m: FinancialMetric) => {
-    setDraft(m);
-    setOpen(true);
+  const handleInlineSave = (m: FinancialMetric) => {
+    upsert.mutate(m, {
+      onSuccess: () => {
+        setEditingId(null);
+        toast({ title: "Metric updated" });
+      },
+      onError: () => toast({ title: "Save failed", variant: "destructive" }),
+    });
   };
 
   const handleDelete = (id: string) => {
@@ -121,25 +175,35 @@ const FinancialMetricsTable = ({ category, icon }: Props) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {metrics.map((m) => (
-                <TableRow key={m.id} className="group">
-                  <TableCell className="font-medium">{m.label}</TableCell>
-                  <TableCell className="text-muted-foreground">{m.period}</TableCell>
-                  <TableCell className="text-right font-semibold tabular-nums">{fmt(m.value)}</TableCell>
-                  {isAdmin && (
-                    <TableCell className="text-right">
-                      <div className="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => handleEdit(m)} className="text-muted-foreground hover:text-foreground">
-                          <Pencil className="h-3.5 w-3.5" />
-                        </button>
-                        <button onClick={() => handleDelete(m.id)} className="text-muted-foreground hover:text-destructive">
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
+              {metrics.map((m) =>
+                isAdmin && editingId === m.id ? (
+                  <InlineEditRow
+                    key={m.id}
+                    metric={m}
+                    onSave={handleInlineSave}
+                    onCancel={() => setEditingId(null)}
+                    saving={upsert.isPending}
+                  />
+                ) : (
+                  <TableRow key={m.id} className="group">
+                    <TableCell className="font-medium">{m.label}</TableCell>
+                    <TableCell className="text-muted-foreground">{m.period}</TableCell>
+                    <TableCell className="text-right font-semibold tabular-nums">{fmt(m.value)}</TableCell>
+                    {isAdmin && (
+                      <TableCell className="text-right">
+                        <div className="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => setEditingId(m.id)} className="text-muted-foreground hover:text-foreground">
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button onClick={() => handleDelete(m.id)} className="text-muted-foreground hover:text-destructive">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                )
+              )}
             </TableBody>
           </Table>
         )}
