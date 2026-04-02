@@ -264,6 +264,48 @@ export type Database = {
         }
         Relationships: []
       }
+      growth_pipeline: {
+        Row: {
+          created_at: string
+          estimated_units: number | null
+          estimated_value: number | null
+          id: string
+          location: string | null
+          name: string
+          notes: string | null
+          sort_order: number
+          status: Database["public"]["Enums"]["pipeline_status"]
+          target_close_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          estimated_units?: number | null
+          estimated_value?: number | null
+          id?: string
+          location?: string | null
+          name: string
+          notes?: string | null
+          sort_order?: number
+          status?: Database["public"]["Enums"]["pipeline_status"]
+          target_close_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          estimated_units?: number | null
+          estimated_value?: number | null
+          id?: string
+          location?: string | null
+          name?: string
+          notes?: string | null
+          sort_order?: number
+          status?: Database["public"]["Enums"]["pipeline_status"]
+          target_close_date?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       kpi_values: {
         Row: {
           created_at: string
@@ -384,6 +426,11 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "advisor" | "investor"
+      pipeline_status:
+        | "prospect"
+        | "due_diligence"
+        | "under_contract"
+        | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -512,6 +559,12 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "advisor", "investor"],
+      pipeline_status: [
+        "prospect",
+        "due_diligence",
+        "under_contract",
+        "completed",
+      ],
     },
   },
 } as const
