@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,11 +10,19 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 const Login = () => {
+  const { session } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
+
+  // Redirect if already authenticated
+  if (session) {
+    navigate("/", { replace: true });
+    return null;
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
