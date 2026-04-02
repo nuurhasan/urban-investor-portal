@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         heading: ["Georgia", "'Times New Roman'", "serif"],
         body: ["'Inter'", "system-ui", "sans-serif"],
+        number: ["'Montserrat'", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
