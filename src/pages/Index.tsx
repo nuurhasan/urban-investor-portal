@@ -1,30 +1,45 @@
-import StatCard from "@/components/StatCard";
+import EditableKpiCard from "@/components/EditableKpiCard";
+import EditableText from "@/components/EditableText";
+import BrochureViewer from "@/components/BrochureViewer";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { FileText, Download, Mail } from "lucide-react";
-
-const kpiData = [
-  { label: "Total Company Value", value: "$42.5M" },
-  { label: "Facilities", value: "2" },
-  { label: "Total Units", value: "385" },
-  { label: "Avg Occupancy", value: "87%" },
-  { label: "Dividend Yield", value: "6.2%" },
-  { label: "Annual Revenue", value: "$3.8M" },
-  { label: "NOI", value: "$1.2M" },
-  { label: "YoY Revenue Growth", value: "12.4%" },
-];
+import { useSiteContent } from "@/hooks/useSiteContent";
+import { useKpiValues } from "@/hooks/useKpiValues";
 
 const Index = () => {
+  const { data: welcomeTitle, isLoading: titleLoading } = useSiteContent("welcome_title");
+  const { data: welcomeBody, isLoading: bodyLoading } = useSiteContent("welcome_body");
+  const { data: kpis, isLoading: kpisLoading } = useKpiValues();
+
   return (
     <div className="space-y-8">
       {/* Welcome */}
       <section>
-        <h1 className="font-heading text-3xl text-secondary">
-          Welcome to Urban Self Storage
-        </h1>
-        <p className="mt-2 max-w-2xl text-muted-foreground">
-          Your secure portal for investment performance, asset data, and
-          corporate documents. Explore the latest metrics and reports below.
-        </p>
+        {titleLoading ? (
+          <Skeleton className="h-9 w-80" />
+        ) : (
+          <EditableText
+            contentKey="welcome_title"
+            currentValue={welcomeTitle?.title}
+            field="title"
+            as="h1"
+            className="font-heading text-3xl text-secondary"
+          />
+        )}
+        <div className="mt-2 max-w-2xl">
+          {bodyLoading ? (
+            <Skeleton className="h-12 w-full" />
+          ) : (
+            <EditableText
+              contentKey="welcome_body"
+              currentValue={welcomeBody?.body}
+              field="body"
+              as="p"
+              className="text-muted-foreground"
+            />
+          )}
+        </div>
       </section>
 
       {/* KPI Grid */}
@@ -33,10 +48,19 @@ const Index = () => {
           Key Performance Indicators
         </h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {kpiData.map((kpi) => (
-            <StatCard key={kpi.label} label={kpi.label} value={kpi.value} />
-          ))}
+          {kpisLoading
+            ? Array.from({ length: 8 }).map((_, i) => (
+                <Skeleton key={i} className="h-24 rounded-lg" />
+              ))
+            : kpis?.map((kpi) => (
+                <EditableKpiCard key={kpi.id} kpi={kpi} />
+              ))}
         </div>
+      </section>
+
+      {/* Brochure */}
+      <section>
+        <BrochureViewer />
       </section>
 
       {/* Quick Actions */}
