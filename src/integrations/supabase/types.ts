@@ -198,6 +198,72 @@ export type Database = {
           },
         ]
       }
+      financial_documents: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          sort_order: number
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          sort_order?: number
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          sort_order?: number
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      financial_metrics: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          label: string
+          period: string
+          sort_order: number
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          label: string
+          period?: string
+          sort_order?: number
+          updated_at?: string
+          value?: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          label?: string
+          period?: string
+          sort_order?: number
+          updated_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
       kpi_values: {
         Row: {
           created_at: string
