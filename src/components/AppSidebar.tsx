@@ -11,6 +11,7 @@ import {
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import logoWhite from "@/assets/uss-logo-white.png";
 import {
   Sidebar,
   SidebarContent,
@@ -45,18 +46,19 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r-0">
       <SidebarHeader className="p-4">
         {!collapsed ? (
-          <div className="flex flex-col">
-            <span className="font-heading text-lg font-bold text-sidebar-primary-foreground">
-              Urban Self Storage
-            </span>
-            <span className="text-xs text-sidebar-foreground/60">
-              Investor Portal
-            </span>
+          <div className="flex flex-col items-start gap-2">
+            <img src={logoWhite} alt="Urban Self Storage" className="h-10 w-auto" />
+            <div className="flex flex-col">
+              <span className="font-heading text-lg font-bold text-sidebar-primary-foreground">
+                Urban Self Storage
+              </span>
+              <span className="text-xs text-sidebar-foreground/60">
+                Investor Portal
+              </span>
+            </div>
           </div>
         ) : (
-          <span className="font-heading text-lg font-bold text-sidebar-primary">
-            U
-          </span>
+          <img src={logoWhite} alt="USS" className="h-7 w-auto mx-auto" />
         )}
       </SidebarHeader>
 
