@@ -1,4 +1,3 @@
-import { Bell } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Breadcrumb,
@@ -9,7 +8,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 
 const routeLabels: Record<string, string> = {
   "/": "Dashboard",
