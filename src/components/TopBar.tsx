@@ -53,9 +53,6 @@ const TopBar = () => {
         <span className="hidden text-xs text-muted-foreground sm:block">
           Updated {lastUpdated}
         </span>
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-4 w-4" />
-        </Button>
       </div>
     </header>
   );
