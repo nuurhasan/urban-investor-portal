@@ -3,9 +3,11 @@ import EditableText from "@/components/EditableText";
 import BrochureViewer from "@/components/BrochureViewer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, Download, Mail } from "lucide-react";
+import { Download, Mail } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useKpiValues } from "@/hooks/useKpiValues";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 const Index = () => {
   const { data: welcomeTitle, isLoading: titleLoading } = useSiteContent("welcome_title");
