@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import logoColor from "@/assets/uss-logo-color.png";
 
 const Login = () => {
   const { session } = useAuth();
@@ -76,12 +77,9 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
       <Card className="w-full max-w-md border-0 shadow-xl">
         <CardHeader className="text-center pb-2">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-secondary">
-            <span className="font-heading text-2xl font-bold text-secondary-foreground">U</span>
+          <div className="mx-auto mb-4 flex items-center justify-center">
+            <img src={logoColor} alt="Urban Self Storage" className="h-20 w-auto" />
           </div>
-          <CardTitle className="font-heading text-2xl text-secondary">
-            Urban Self Storage
-          </CardTitle>
           <CardDescription className="text-muted-foreground">
             {mode === "login" && "Sign in to your investor portal"}
             {mode === "signup" && "Create your account"}
