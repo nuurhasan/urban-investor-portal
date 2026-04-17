@@ -82,17 +82,19 @@ const Index = () => {
 
       {/* Quick Actions */}
       <section className="flex flex-wrap gap-3">
-        <Button className="rounded-md">
-          <FileText className="mr-2 h-4 w-4" />
-          View Latest Report
-        </Button>
-        <Button variant="secondary" className="rounded-md">
+        <Button onClick={handleDownloadBrochure} className="rounded-md">
           <Download className="mr-2 h-4 w-4" />
           Download Brochure
         </Button>
-        <Button variant="outline" className="rounded-md">
-          <Mail className="mr-2 h-4 w-4" />
-          Contact Us
+        <Button variant="outline" className="rounded-md" asChild>
+          <a
+            href="https://urbanselfstorage.com.au/contact/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Mail className="mr-2 h-4 w-4" />
+            Contact Us
+          </a>
         </Button>
       </section>
     </div>
