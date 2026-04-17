@@ -14,6 +14,21 @@ const Index = () => {
   const { data: welcomeBody, isLoading: bodyLoading } = useSiteContent("welcome_body");
   const { data: kpis, isLoading: kpisLoading } = useKpiValues();
 
+  const handleDownloadBrochure = async () => {
+    const { data, error } = await supabase.storage
+      .from("documents")
+      .createSignedUrl("brochure.pdf", 3600, { download: "urban-self-storage-brochure.pdf" });
+    if (error || !data?.signedUrl) {
+      toast({
+        title: "Brochure not available",
+        description: "No brochure has been uploaded yet.",
+        variant: "destructive",
+      });
+      return;
+    }
+    window.open(data.signedUrl, "_blank");
+  };
+
   return (
     <div className="space-y-8">
       {/* Welcome */}
