@@ -442,6 +442,7 @@ export type Database = {
         | "due_diligence"
         | "under_contract"
         | "completed"
+        | "declined"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -576,6 +577,7 @@ export const Constants = {
         "due_diligence",
         "under_contract",
         "completed",
+        "declined",
       ],
     },
   },
