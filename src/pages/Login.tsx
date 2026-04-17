@@ -48,7 +48,10 @@ const Login = () => {
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success("Check your email to confirm your account.");
+      toast.success(
+        "Account created! An administrator must approve your account before you can sign in.",
+        { duration: 8000 }
+      );
       setMode("login");
     }
     setLoading(false);
