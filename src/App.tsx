@@ -13,6 +13,8 @@ import Portfolio from "./pages/Portfolio";
 import Governance from "./pages/Governance";
 import Financials from "./pages/Financials";
 import Growth from "./pages/Growth";
+import Account from "./pages/Account";
+import AdminUsers from "./pages/AdminUsers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +41,8 @@ const App = () => (
               <Route path="/governance" element={<Governance />} />
               <Route path="/financials" element={<Financials />} />
               <Route path="/growth" element={<Growth />} />
+              <Route path="/account" element={<Account />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
