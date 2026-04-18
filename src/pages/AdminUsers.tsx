@@ -157,6 +157,39 @@ const AdminUsers = () => {
                             ))}
                           </SelectContent>
                         </Select>
+                        {u.user_id !== user?.id && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                disabled={deleteUser.isPending}
+                                title="Delete user"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete this user?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This permanently removes <strong>{u.full_name ?? "this user"}</strong>'s
+                                  account, profile, and all role assignments. They will no longer be
+                                  able to sign in. This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteUser.mutate(u.user_id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Delete user
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
