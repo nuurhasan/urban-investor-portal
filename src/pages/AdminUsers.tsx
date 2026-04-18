@@ -1,21 +1,33 @@
-import { useAllUsers, useUpdateApproval, useAssignRole, useRemoveRole, type AppRole } from "@/hooks/useAllUsers";
+import { useAllUsers, useUpdateApproval, useAssignRole, useRemoveRole, useDeleteUser, type AppRole } from "@/hooks/useAllUsers";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Check, X } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Loader2, Check, X, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 
 const ROLES: AppRole[] = ["admin", "advisor", "investor"];
 
 const AdminUsers = () => {
-  const { isAdmin, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const { data: users, isLoading } = useAllUsers();
   const updateApproval = useUpdateApproval();
   const assignRole = useAssignRole();
   const removeRole = useRemoveRole();
+  const deleteUser = useDeleteUser();
 
   if (authLoading) {
     return (
@@ -145,6 +157,39 @@ const AdminUsers = () => {
                             ))}
                           </SelectContent>
                         </Select>
+                        {u.user_id !== user?.id && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                disabled={deleteUser.isPending}
+                                title="Delete user"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete this user?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This permanently removes <strong>{u.full_name ?? "this user"}</strong>'s
+                                  account, profile, and all role assignments. They will no longer be
+                                  able to sign in. This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteUser.mutate(u.user_id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Delete user
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
