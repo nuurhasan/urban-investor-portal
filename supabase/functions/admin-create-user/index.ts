@@ -97,7 +97,7 @@ Deno.serve(async (req) => {
       .update({
         approval_status: "approved",
         approved_at: new Date().toISOString(),
-        approved_by: userData.user.id,
+        approved_by: callerId,
         full_name: fullName,
         company,
       })
