@@ -47,13 +47,13 @@ export function AppSidebar() {
       <SidebarHeader className="p-4">
         {!collapsed ? (
           <div className="flex flex-col items-start gap-2">
-            <img src={logoWhite} alt="Urban Self Storage" className="h-10 w-auto" />
+            <img src={logoWhite} alt="Urban Self Storage" className="h-12 w-auto" />
             <span className="text-xs text-sidebar-foreground/60">
               Investor Portal
             </span>
           </div>
         ) : (
-          <img src={logoWhite} alt="USS" className="h-7 w-auto mx-auto" />
+          <img src={logoWhite} alt="USS" className="h-9 w-auto mx-auto" />
         )}
       </SidebarHeader>
 
