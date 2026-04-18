@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Clock, XCircle, LogOut } from "lucide-react";
+import logoColor from "@/assets/uss-logo-color.png";
 
 interface Props {
   status: "pending" | "rejected";
@@ -16,8 +17,8 @@ const PendingApproval = ({ status }: Props) => {
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
       <Card className="w-full max-w-md border-0 shadow-xl">
         <CardHeader className="text-center pb-2">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-secondary">
-            <span className="font-heading text-2xl font-bold text-secondary-foreground">U</span>
+          <div className="mx-auto mb-4 flex items-center justify-center">
+            <img src={logoColor} alt="Urban Self Storage" className="h-20 w-auto" />
           </div>
           <CardTitle className="font-heading text-2xl text-secondary">
             {isRejected ? "Access Denied" : "Approval Pending"}
