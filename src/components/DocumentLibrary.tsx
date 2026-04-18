@@ -16,15 +16,29 @@ import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 
-const DocumentLibrary = () => {
+interface DocumentLibraryProps {
+  category?: string;
+  excludeCategory?: string;
+  title?: string;
+  fileTypes?: string;
+  showCategoryField?: boolean;
+}
+
+const DocumentLibrary = ({
+  category: fixedCategory,
+  excludeCategory,
+  title = "Document Library",
+  fileTypes = ".pdf,.xlsx,.xls,.csv,.docx",
+  showCategoryField = true,
+}: DocumentLibraryProps = {}) => {
   const { isAdmin } = useAuth();
-  const { data: docs, isLoading } = useFinancialDocuments();
+  const { data: docs, isLoading } = useFinancialDocuments({ category: fixedCategory, excludeCategory });
   const addDoc = useAddFinancialDocument();
   const removeDoc = useDeleteFinancialDocument();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("general");
+  const [category, setCategory] = useState(fixedCategory ?? "general");
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [viewerUrl, setViewerUrl] = useState<string | null>(null);
@@ -35,7 +49,8 @@ const DocumentLibrary = () => {
       return;
     }
     setUploading(true);
-    const storagePath = `financials/${Date.now()}-${file.name}`;
+    const folder = fixedCategory ?? "financials";
+    const storagePath = `${folder}/${Date.now()}-${file.name}`;
     const { error: uploadErr } = await supabase.storage.from("documents").upload(storagePath, file);
     if (uploadErr) {
       toast({ title: "Upload failed", description: uploadErr.message, variant: "destructive" });
@@ -86,7 +101,7 @@ const DocumentLibrary = () => {
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-lg font-heading text-secondary flex items-center gap-2">
             <FolderOpen className="h-5 w-5 text-primary" />
-            Document Library
+            {title}
           </CardTitle>
           {isAdmin && (
             <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
@@ -150,7 +165,7 @@ const DocumentLibrary = () => {
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Upload Financial Document</DialogTitle>
+              <DialogTitle>Upload Document</DialogTitle>
             </DialogHeader>
             <div className="space-y-3">
               <Input placeholder="Document name" value={name} onChange={(e) => setName(e.target.value)} />
@@ -159,12 +174,14 @@ const DocumentLibrary = () => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
-              <Input
-                placeholder="Category (e.g. annual-report, tax)"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              />
-              <Input type="file" accept=".pdf,.xlsx,.xls,.csv,.docx" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+              {showCategoryField && !fixedCategory && (
+                <Input
+                  placeholder="Category (e.g. annual-report, tax)"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                />
+              )}
+              <Input type="file" accept={fileTypes} onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
