@@ -101,6 +101,17 @@ export function useAddFacility() {
   });
 }
 
+export function useDeleteFacility() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("facilities").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["facilities"] }),
+  });
+}
+
 export function useUpdateFacility() {
   const qc = useQueryClient();
   return useMutation({
