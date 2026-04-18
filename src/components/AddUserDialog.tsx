@@ -78,7 +78,7 @@ export function AddUserDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
           <div className="space-y-2">
             <Label htmlFor="add-name">Full name</Label>
             <Input id="add-name" value={fullName} onChange={(e) => setFullName(e.target.value)} required maxLength={100} />
