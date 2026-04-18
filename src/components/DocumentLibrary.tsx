@@ -16,15 +16,27 @@ import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 
-const DocumentLibrary = () => {
+interface DocumentLibraryProps {
+  category?: string;
+  title?: string;
+  fileTypes?: string;
+  showCategoryField?: boolean;
+}
+
+const DocumentLibrary = ({
+  category: fixedCategory,
+  title = "Document Library",
+  fileTypes = ".pdf,.xlsx,.xls,.csv,.docx",
+  showCategoryField = true,
+}: DocumentLibraryProps = {}) => {
   const { isAdmin } = useAuth();
-  const { data: docs, isLoading } = useFinancialDocuments();
+  const { data: docs, isLoading } = useFinancialDocuments(fixedCategory);
   const addDoc = useAddFinancialDocument();
   const removeDoc = useDeleteFinancialDocument();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("general");
+  const [category, setCategory] = useState(fixedCategory ?? "general");
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [viewerUrl, setViewerUrl] = useState<string | null>(null);
