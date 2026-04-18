@@ -68,11 +68,11 @@ const Governance = () => {
       {/* Security Holders Agreement PDF */}
       <GovernancePdfViewer storagePath="governance-sha.pdf" title="Security Holders Agreement" />
 
-      {/* Governance Document Library */}
-      <DocumentLibrary category="governance" title="Governance Documents" />
-
       {/* Board & Leadership */}
       <BoardRoster />
+
+      {/* Governance Document Library */}
+      <DocumentLibrary category="governance" title="Governance Documents" />
     </div>
   );
 };
