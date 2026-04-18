@@ -24,16 +24,19 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // Verify caller's JWT using the service-role client
+    // Decode JWT payload to get caller user id
     const token = authHeader.replace(/^Bearer\s+/i, "");
-    const { data: claimsData, error: claimsErr } = await admin.auth.getClaims(token);
-    if (claimsErr || !claimsData?.claims?.sub) {
-      return new Response(JSON.stringify({ error: "Unauthorized", detail: claimsErr?.message ?? "no claims" }), {
+    let callerId: string;
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      callerId = payload.sub;
+      if (!callerId) throw new Error("no sub claim");
+    } catch (e) {
+      return new Response(JSON.stringify({ error: "Unauthorized", detail: String((e as Error).message) }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const callerId = claimsData.claims.sub as string;
 
     const { data: isAdmin, error: roleErr } = await admin.rpc("has_role", {
       _user_id: callerId,
