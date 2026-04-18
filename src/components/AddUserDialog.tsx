@@ -78,14 +78,14 @@ export function AddUserDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
           <div className="space-y-2">
             <Label htmlFor="add-name">Full name</Label>
-            <Input id="add-name" value={fullName} onChange={(e) => setFullName(e.target.value)} required maxLength={100} />
+            <Input id="add-name" value={fullName} onChange={(e) => setFullName(e.target.value)} required maxLength={100} autoComplete="off" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="add-email">Email</Label>
-            <Input id="add-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required maxLength={255} />
+            <Input id="add-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required maxLength={255} autoComplete="off" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="add-company">Company (optional)</Label>
@@ -109,11 +109,16 @@ export function AddUserDialog() {
             <div className="flex gap-2">
               <Input
                 id="add-password"
+                type="text"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
                 className="font-mono"
+                autoComplete="off"
+                data-1p-ignore
+                data-lpignore="true"
+                data-form-type="other"
               />
               <Button
                 type="button"
