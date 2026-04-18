@@ -86,6 +86,32 @@ export function useAssignRole() {
   });
 }
 
+export interface CreateUserInput {
+  email: string;
+  password: string;
+  fullName: string;
+  role: AppRole;
+  company?: string;
+}
+
+export function useCreateUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: CreateUserInput) => {
+      const { data, error } = await supabase.functions.invoke("admin-create-user", {
+        body: input,
+      });
+      if (error) throw error;
+      if (data && data.ok === false) throw new Error(data.error ?? "Failed to create user");
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["all-users"] });
+      toast.success("User created and approved");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
 export function useDeleteUser() {
   const qc = useQueryClient();
   return useMutation({

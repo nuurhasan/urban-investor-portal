@@ -18,6 +18,7 @@ import {
 import { Loader2, Check, X, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import { AddUserDialog } from "@/components/AddUserDialog";
 
 const ROLES: AppRole[] = ["admin", "advisor", "investor"];
 
@@ -43,11 +44,14 @@ const AdminUsers = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-heading text-3xl font-bold text-secondary">User Management</h1>
-        <p className="text-muted-foreground mt-1">
-          Approve new signups and manage user roles
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="font-heading text-3xl font-bold text-secondary">User Management</h1>
+          <p className="text-muted-foreground mt-1">
+            Approve new signups and manage user roles
+          </p>
+        </div>
+        <AddUserDialog />
       </div>
 
       <Card>
