@@ -18,6 +18,7 @@ import { format } from "date-fns";
 
 interface DocumentLibraryProps {
   category?: string;
+  excludeCategory?: string;
   title?: string;
   fileTypes?: string;
   showCategoryField?: boolean;
@@ -25,12 +26,13 @@ interface DocumentLibraryProps {
 
 const DocumentLibrary = ({
   category: fixedCategory,
+  excludeCategory,
   title = "Document Library",
   fileTypes = ".pdf,.xlsx,.xls,.csv,.docx",
   showCategoryField = true,
 }: DocumentLibraryProps = {}) => {
   const { isAdmin } = useAuth();
-  const { data: docs, isLoading } = useFinancialDocuments(fixedCategory);
+  const { data: docs, isLoading } = useFinancialDocuments({ category: fixedCategory, excludeCategory });
   const addDoc = useAddFinancialDocument();
   const removeDoc = useDeleteFinancialDocument();
   const [open, setOpen] = useState(false);
