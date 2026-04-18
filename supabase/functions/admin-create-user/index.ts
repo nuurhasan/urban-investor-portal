@@ -26,18 +26,19 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // Verify caller's JWT using the service-role client (bypasses gateway verify_jwt)
+    // Verify caller's JWT (signature only — no session lookup)
     const token = authHeader.replace(/^Bearer\s+/i, "");
-    const { data: userData, error: userErr } = await admin.auth.getUser(token);
-    if (userErr || !userData.user) {
-      return new Response(JSON.stringify({ error: "Unauthorized", detail: userErr?.message ?? "no user" }), {
+    const { data: claimsData, error: claimsErr } = await admin.auth.getClaims(token);
+    if (claimsErr || !claimsData?.claims?.sub) {
+      return new Response(JSON.stringify({ error: "Unauthorized", detail: claimsErr?.message ?? "no claims" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const callerId = claimsData.claims.sub as string;
 
     const { data: isAdmin } = await admin.rpc("has_role", {
-      _user_id: userData.user.id,
+      _user_id: callerId,
       _role: "admin",
     });
     if (!isAdmin) {
