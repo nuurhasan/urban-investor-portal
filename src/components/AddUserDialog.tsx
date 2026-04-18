@@ -81,11 +81,11 @@ export function AddUserDialog() {
         <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
           <div className="space-y-2">
             <Label htmlFor="add-name">Full name</Label>
-            <Input id="add-name" value={fullName} onChange={(e) => setFullName(e.target.value)} required maxLength={100} />
+            <Input id="add-name" value={fullName} onChange={(e) => setFullName(e.target.value)} required maxLength={100} autoComplete="off" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="add-email">Email</Label>
-            <Input id="add-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required maxLength={255} />
+            <Input id="add-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required maxLength={255} autoComplete="off" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="add-company">Company (optional)</Label>
