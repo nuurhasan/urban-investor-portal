@@ -21,14 +21,14 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const anonKey = Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    // Verify caller is admin
-    const userClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: authHeader } },
+    const admin = createClient(supabaseUrl, serviceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
-    const { data: userData, error: userErr } = await userClient.auth.getUser();
+
+    // Verify caller's JWT using the service-role client (bypasses gateway verify_jwt)
+    const token = authHeader.replace(/^Bearer\s+/i, "");
+    const { data: userData, error: userErr } = await admin.auth.getUser(token);
     if (userErr || !userData.user) {
       return new Response(JSON.stringify({ error: "Unauthorized", detail: userErr?.message ?? "no user" }), {
         status: 401,
@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { data: isAdmin } = await userClient.rpc("has_role", {
+    const { data: isAdmin } = await admin.rpc("has_role", {
       _user_id: userData.user.id,
       _role: "admin",
     });
@@ -76,10 +76,6 @@ Deno.serve(async (req) => {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    const admin = createClient(supabaseUrl, serviceKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    });
 
     // Create the user with email pre-confirmed (admin-provisioned)
     const { data: created, error: createErr } = await admin.auth.admin.createUser({

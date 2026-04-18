@@ -19,22 +19,22 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const anonKey = Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    // Verify caller is an admin using their JWT
-    const userClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: authHeader } },
+    const admin = createClient(supabaseUrl, serviceKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
-    const { data: userData, error: userErr } = await userClient.auth.getUser();
+
+    // Verify caller's JWT using the service-role client
+    const token = authHeader.replace(/^Bearer\s+/i, "");
+    const { data: userData, error: userErr } = await admin.auth.getUser(token);
     if (userErr || !userData.user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      return new Response(JSON.stringify({ error: "Unauthorized", detail: userErr?.message ?? "no user" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const { data: isAdmin, error: roleErr } = await userClient.rpc("has_role", {
+    const { data: isAdmin, error: roleErr } = await admin.rpc("has_role", {
       _user_id: userData.user.id,
       _role: "admin",
     });
@@ -60,10 +60,6 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    const admin = createClient(supabaseUrl, serviceKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    });
 
     // Clean up app rows first (FKs are not enforced to auth.users, so this stays consistent)
     await admin.from("user_roles").delete().eq("user_id", targetUserId);
