@@ -163,7 +163,7 @@ const DocumentLibrary = ({
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Upload Financial Document</DialogTitle>
+              <DialogTitle>Upload Document</DialogTitle>
             </DialogHeader>
             <div className="space-y-3">
               <Input placeholder="Document name" value={name} onChange={(e) => setName(e.target.value)} />
@@ -172,12 +172,14 @@ const DocumentLibrary = ({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
-              <Input
-                placeholder="Category (e.g. annual-report, tax)"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              />
-              <Input type="file" accept=".pdf,.xlsx,.xls,.csv,.docx" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+              {showCategoryField && !fixedCategory && (
+                <Input
+                  placeholder="Category (e.g. annual-report, tax)"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                />
+              )}
+              <Input type="file" accept={fileTypes} onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
