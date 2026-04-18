@@ -3,7 +3,7 @@ import EditableText from "@/components/EditableText";
 import BrochureViewer from "@/components/BrochureViewer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Download, Mail } from "lucide-react";
+import { Download } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useKpiValues } from "@/hooks/useKpiValues";
 import { supabase } from "@/integrations/supabase/client";
@@ -85,16 +85,6 @@ const Index = () => {
         <Button onClick={handleDownloadBrochure} className="rounded-md">
           <Download className="mr-2 h-4 w-4" />
           Download Brochure
-        </Button>
-        <Button variant="outline" className="rounded-md" asChild>
-          <a
-            href="https://urbanselfstorage.com.au/contact/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Mail className="mr-2 h-4 w-4" />
-            Contact Us
-          </a>
         </Button>
       </section>
     </div>

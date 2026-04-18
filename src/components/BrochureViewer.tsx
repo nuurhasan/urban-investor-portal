@@ -52,7 +52,7 @@ const BrochureViewer = () => {
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg font-heading text-secondary flex items-center gap-2">
           <FileText className="h-5 w-5 text-primary" />
-          Company Brochure
+          Investor Information
         </CardTitle>
         {isAdmin && (
           <div className="flex gap-2">

@@ -61,14 +61,13 @@ export function useDeleteFinancialMetric() {
   });
 }
 
-export function useFinancialDocuments() {
+export function useFinancialDocuments(category?: string) {
   return useQuery({
-    queryKey: ["financial_documents"],
+    queryKey: ["financial_documents", category ?? "all"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("financial_documents")
-        .select("*")
-        .order("sort_order");
+      let query = supabase.from("financial_documents").select("*").order("sort_order");
+      if (category) query = query.eq("category", category);
+      const { data, error } = await query;
       if (error) throw error;
       return data as FinancialDocument[];
     },
@@ -95,5 +94,16 @@ export function useDeleteFinancialDocument() {
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["financial_documents"] }),
+  });
+}
+
+export function useAddFacility() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (facility: { name: string; city?: string | null; state?: string | null }) => {
+      const { error } = await supabase.from("facilities").insert(facility);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["facilities"] }),
   });
 }
