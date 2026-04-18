@@ -47,7 +47,8 @@ const DocumentLibrary = ({
       return;
     }
     setUploading(true);
-    const storagePath = `financials/${Date.now()}-${file.name}`;
+    const folder = fixedCategory ?? "financials";
+    const storagePath = `${folder}/${Date.now()}-${file.name}`;
     const { error: uploadErr } = await supabase.storage.from("documents").upload(storagePath, file);
     if (uploadErr) {
       toast({ title: "Upload failed", description: uploadErr.message, variant: "destructive" });
@@ -98,7 +99,7 @@ const DocumentLibrary = ({
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-lg font-heading text-secondary flex items-center gap-2">
             <FolderOpen className="h-5 w-5 text-primary" />
-            Document Library
+            {title}
           </CardTitle>
           {isAdmin && (
             <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
