@@ -109,11 +109,16 @@ export function AddUserDialog() {
             <div className="flex gap-2">
               <Input
                 id="add-password"
+                type="text"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
                 className="font-mono"
+                autoComplete="off"
+                data-1p-ignore
+                data-lpignore="true"
+                data-form-type="other"
               />
               <Button
                 type="button"
