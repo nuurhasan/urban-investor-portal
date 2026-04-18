@@ -86,6 +86,24 @@ export function useAssignRole() {
   });
 }
 
+export function useDeleteUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (userId: string) => {
+      const { data, error } = await supabase.functions.invoke("admin-delete-user", {
+        body: { userId },
+      });
+      if (error) throw error;
+      if (data && data.ok === false) throw new Error(data.error ?? "Failed to delete user");
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["all-users"] });
+      toast.success("User deleted");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+}
+
 export function useRemoveRole() {
   const qc = useQueryClient();
   return useMutation({
