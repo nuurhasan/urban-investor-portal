@@ -26,16 +26,17 @@ Deno.serve(async (req) => {
 
     // Verify caller's JWT using the service-role client
     const token = authHeader.replace(/^Bearer\s+/i, "");
-    const { data: userData, error: userErr } = await admin.auth.getUser(token);
-    if (userErr || !userData.user) {
-      return new Response(JSON.stringify({ error: "Unauthorized", detail: userErr?.message ?? "no user" }), {
+    const { data: claimsData, error: claimsErr } = await admin.auth.getClaims(token);
+    if (claimsErr || !claimsData?.claims?.sub) {
+      return new Response(JSON.stringify({ error: "Unauthorized", detail: claimsErr?.message ?? "no claims" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const callerId = claimsData.claims.sub as string;
 
     const { data: isAdmin, error: roleErr } = await admin.rpc("has_role", {
-      _user_id: userData.user.id,
+      _user_id: callerId,
       _role: "admin",
     });
     if (roleErr || !isAdmin) {
@@ -54,7 +55,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    if (targetUserId === userData.user.id) {
+    if (targetUserId === callerId) {
       return new Response(JSON.stringify({ error: "You cannot delete your own account" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
