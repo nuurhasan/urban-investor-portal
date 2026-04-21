@@ -194,7 +194,13 @@ const DocumentLibrary = ({
       </Card>
 
       {/* PDF Viewer Lightbox */}
-      <Dialog open={!!viewerUrl} onOpenChange={() => setViewerUrl(null)}>
+      <Dialog
+        open={!!viewerUrl}
+        onOpenChange={(open) => {
+          if (!open) setViewerUrl(null);
+          else window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+      >
         <DialogContent className="max-w-4xl h-[85vh] flex flex-col p-0">
           <DialogHeader className="px-6 pt-6 pb-2 flex flex-row items-center justify-between">
             <DialogTitle>Document Viewer</DialogTitle>
@@ -202,7 +208,7 @@ const DocumentLibrary = ({
           <div className="flex-1 px-6 pb-6 min-h-0">
             {viewerUrl && (
               <iframe
-                src={viewerUrl}
+                src={`${viewerUrl}#view=FitH&toolbar=1&navpanes=0&page=1`}
                 className="w-full h-full rounded-md border border-border"
                 title="Document viewer"
               />
