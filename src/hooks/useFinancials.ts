@@ -67,7 +67,7 @@ export function useFinancialDocuments(opts?: { category?: string; excludeCategor
   return useQuery({
     queryKey: ["financial_documents", category ?? "all", excludeCategory ?? "none"],
     queryFn: async () => {
-      let query = supabase.from("financial_documents").select("*").order("sort_order");
+      let query = supabase.from("financial_documents").select("*").order("created_at", { ascending: false });
       if (category) query = query.eq("category", category);
       if (excludeCategory) query = query.neq("category", excludeCategory);
       const { data, error } = await query;
