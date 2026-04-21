@@ -72,9 +72,9 @@ const BrochureViewer = () => {
       </CardHeader>
       <CardContent>
         {loading ? (
-          <Skeleton className="w-full h-[400px] rounded-md" />
+          <Skeleton className="w-full h-[1100px] rounded-md" />
         ) : url ? (
-          <iframe src={url} className="w-full h-[400px] rounded-md border border-border" title="Brochure" />
+          <iframe src={`${url}#view=FitH&toolbar=1&navpanes=0&page=1`} className="w-full h-[1100px] rounded-md border border-border" title="Brochure" />
         ) : (
           <div className="flex items-center justify-center h-[200px] rounded-md border border-dashed border-border text-muted-foreground text-sm">
             No brochure uploaded yet.{isAdmin && " Use the Upload button above."}
