@@ -1,1 +1,0 @@
-ALTER TYPE public.pipeline_status ADD VALUE IF NOT EXISTS 'declined';

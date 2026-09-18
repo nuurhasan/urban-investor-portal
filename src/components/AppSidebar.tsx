@@ -5,13 +5,10 @@ import {
   FileText,
   TrendingUp,
   LogOut,
-  Users,
-  UserCog,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import logoWhite from "@/assets/uss-logo-white.png";
 import {
   Sidebar,
   SidebarContent,
@@ -37,23 +34,24 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
-  const { signOut, user, isAdmin } = useAuth();
-  const allNav = isAdmin
-    ? [...navItems, { title: "User Management", url: "/admin/users", icon: Users }]
-    : navItems;
+  const { signOut, user } = useAuth();
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
       <SidebarHeader className="p-4">
         {!collapsed ? (
-          <div className="flex flex-col items-start gap-2">
-            <img src={logoWhite} alt="Urban Self Storage" className="h-14 w-auto" />
+          <div className="flex flex-col">
+            <span className="font-heading text-lg font-bold text-sidebar-primary-foreground">
+              Urban Self Storage
+            </span>
             <span className="text-xs text-sidebar-foreground/60">
               Investor Portal
             </span>
           </div>
         ) : (
-          <img src={logoWhite} alt="USS" className="h-11 w-auto mx-auto" />
+          <span className="font-heading text-lg font-bold text-sidebar-primary">
+            U
+          </span>
         )}
       </SidebarHeader>
 
@@ -61,7 +59,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {allNav.map((item) => {
+              {navItems.map((item) => {
                 const isActive =
                   item.url === "/"
                     ? location.pathname === "/"
@@ -94,29 +92,17 @@ export function AppSidebar() {
       <SidebarFooter className="p-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Account">
-              <NavLink
-                to="/account"
-                className="text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                activeClassName="bg-sidebar-primary text-sidebar-primary-foreground"
-              >
-                <UserCog className="h-4 w-4" />
-                {!collapsed && (
-                  <span className="truncate text-xs">
-                    {user?.email ?? "Account"}
-                  </span>
-                )}
-              </NavLink>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
             <SidebarMenuButton
               tooltip="Sign out"
               onClick={signOut}
               className="text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
             >
               <LogOut className="h-4 w-4" />
-              {!collapsed && <span className="truncate text-xs">Sign out</span>}
+              {!collapsed && (
+                <span className="truncate text-xs">
+                  {user?.email ?? "Sign out"}
+                </span>
+              )}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

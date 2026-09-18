@@ -1,3 +1,4 @@
+import { Bell } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Breadcrumb,
@@ -8,6 +9,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const routeLabels: Record<string, string> = {
   "/": "Dashboard",
@@ -53,6 +55,9 @@ const TopBar = () => {
         <span className="hidden text-xs text-muted-foreground sm:block">
           Updated {lastUpdated}
         </span>
+        <Button variant="ghost" size="icon" className="relative">
+          <Bell className="h-4 w-4" />
+        </Button>
       </div>
     </header>
   );

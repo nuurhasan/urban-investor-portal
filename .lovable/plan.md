@@ -1,68 +1,70 @@
 
+# Urban Self Storage — Investor Portal
 
-## Plan: Admin account, password change, and signup approval workflow
+## Overview
+A secure, role-based investor portal for Urban Self Storage. Lovable Cloud backend (Supabase) for auth, database, and file storage. Mapbox for facility maps. Admin UI for content management.
 
-### 1. Admin account for wes@urbanselfstorage.com.au
-Cannot create auth users directly via SQL (auth.users is managed by Supabase). Two options:
+---
 
-- **Option A (recommended):** You sign up at `/login` using `wes@urbanselfstorage.com.au` / `12345678`. Then I run a one-line migration to insert the `admin` role into `user_roles` for that user. Confirms email + password are real.
-- **Option B:** I write an edge function using the service role key to create the user programmatically and assign the admin role. More complex, only worth it if you can't do the signup yourself.
+## Phase 1: Foundation & Design System
+- Configure Tailwind/CSS variables with USS brand tokens (Navy #29334D, Green #62A348, Warm Gray #D2D1CB, Charcoal #323232, Off White #F5F5F3)
+- Set up Georgia Bold (via Google Fonts) for headings/stats, Inter for body
+- Build reusable components: StatCard (white bg, 4px green top border), branded Button variants, TopBar (breadcrumbs, timestamp, notification bell)
+- Build the persistent 250px navy Sidebar with collapsible mobile hamburger, nav links for all 6 sections, USS logo at top
+- Create the authenticated layout shell (sidebar + topbar + main content area)
 
-Going with Option A. After you sign up I'll run:
-```sql
-INSERT INTO user_roles (user_id, role)
-SELECT id, 'admin' FROM auth.users WHERE email = 'wes@urbanselfstorage.com.au';
-```
+## Phase 2: Authentication & Roles
+- Enable Lovable Cloud auth with email + password
+- Create `user_roles` table with `app_role` enum (admin, moderator/advisor, user/investor)
+- Create `profiles` table for user display info
+- Build Login page with USS branding
+- Implement role-based route protection (Admin = full edit, Investor = read-only, Advisor = limited)
+- Add 30-minute session timeout with auto-logout
 
-### 2. Signup approval workflow
-New users sign up but stay locked out until an admin approves them.
+## Phase 3: Dashboard (Home)
+- Welcome summary section with CMS-editable text (stored in DB, editable by admins)
+- Embedded PDF e-brochure viewer (iframe/PDF component, file in Supabase Storage)
+- 4×2 KPI stat card grid: Total Company Value, Facilities, Total Units, Avg Occupancy, Dividend Yield, Annual Revenue, NOI, YoY Revenue Growth — values stored in DB, editable by admins
+- Quick action buttons: View Latest Report, Download Brochure, Contact Us
 
-**DB changes (migration):**
-- Add `approval_status` enum: `pending`, `approved`, `rejected`
-- Add `approval_status` column to `profiles` (default `pending`), plus `approved_at`, `approved_by`
-- Update `handle_new_user()` trigger so new profiles default to `pending`
-- Add helper function `is_user_approved(_user_id uuid)` — security definer, returns boolean
-- Add RLS so admins can update `approval_status` on profiles
+## Phase 4: Asset Portfolio
+- Mapbox interactive map of Australia with clickable facility pins (Bunbury, WA region)
+- Facility list sidebar with thumbnail, name, address, units, occupancy
+- Facility Detail subpage: photo gallery carousel, KPI stats (units, NLA, occupancy, revenue, value, rev/unit), tabbed content (Overview, Financials, Occupancy History, Documents)
+- All facility data stored in DB, admin-editable
 
-**Frontend changes:**
-- New `useApprovalStatus` hook — reads current user's profile approval status
-- Update `ProtectedRoute.tsx`: if logged in but `approval_status != 'approved'` AND not admin → render a "Pending Approval" screen (full page alert, sign-out button) instead of the app
-- Special case: the admin you create is auto-approved via the migration that grants the role
-- Update `handle_new_user()` to auto-approve users who already have an admin role (defensive)
+## Phase 5: Corporate Governance
+- Three-column layout: (1) Embedded PDF viewer for Security Holders Agreement + download, (2) Board & Leadership roster with photo placeholders and titles, (3) Values & Mission with 5 company values and mission statement
+- Board members and values stored in DB, admin-editable
 
-**Admin UI:**
-- New page `/admin/users` (admin-only nav link in sidebar)
-- Lists all profiles with: name, email, signup date, status badge, role
-- Actions per row: Approve, Reject, Assign Role (admin/advisor/investor), Remove
-- Pending users sorted to top
+## Phase 6: Financials & Reporting (Data Room)
+- Tabbed document library: All / Quarterly / Annual / Financial Statements / Tax Documents
+- Table with columns: Document Name, Type, Date, Size, Actions (View inline + Download)
+- Search bar, sort by date, filter by year
+- "NEW" badge on documents uploaded within last 30 days
+- Inline PDF viewer modal
+- Documents stored in Supabase Storage, metadata in DB
+- Admin upload interface
 
-### 3. Password change for logged-in users
-- New `/account` page accessible from TopBar user menu (or sidebar)
-- Form: current password (re-auth), new password, confirm new password
-- Uses `supabase.auth.updateUser({ password })`
-- Show success toast, no forced sign-out
+## Phase 7: Growth & Strategy
+- Horizontal acquisition timeline (2020 → 2028) with milestone markers
+- Active pipeline table: opportunity name, location, deal stage (color-coded badges), estimated value
+- Target market heat map placeholder (static WA region image for now)
+- Acquisition criteria checklist
+- Bold 5-year targets banner at bottom
+- All content admin-editable
 
-### Files to create / edit
+## Phase 8: Admin Content Management
+- Admin-only UI for editing: dashboard welcome text, KPI values, facility data, board members, documents upload, pipeline opportunities, timeline milestones
+- Role-gated edit buttons/forms that only appear for Admin users
 
-**Migration:**
-- New migration: approval_status enum + columns + updated trigger + helper function + admin role grant for wes
+## Recommended Build Order
+Phases 1→2→3→4→5→6→7→8 (foundation first, then auth, then pages in order of stakeholder priority, admin UI last since it layers on top of all content)
 
-**New files:**
-- `src/pages/Account.tsx` — change password form
-- `src/pages/AdminUsers.tsx` — user management table
-- `src/components/PendingApproval.tsx` — locked-out screen
-- `src/hooks/useApprovalStatus.ts`
-- `src/hooks/useAllUsers.ts` (admin-only fetch of profiles + roles)
-
-**Edited files:**
-- `src/components/ProtectedRoute.tsx` — gate on approval status
-- `src/components/AppSidebar.tsx` — conditional admin nav links
-- `src/components/TopBar.tsx` — add Account link / user menu
-- `src/App.tsx` — register `/account` and `/admin/users` routes
-
-### Updated `.lovable/plan.md`
-Append a Phase 8 section covering: admin account provisioning, signup approval gate, password self-service, user management UI.
-
-### What I need from you before building
-Just confirm: after I push the migration, **you** will sign up at `/login` with `wes@urbanselfstorage.com.au` / `12345678` so the auth user exists. Then the role grant takes effect on next login. Sound good?
-
+## Technical Decisions Confirmed
+- **Backend**: Lovable Cloud (managed Supabase)
+- **Maps**: Mapbox (will need API key stored as secret)
+- **Auth**: Email + password, no 2FA for now
+- **Content**: Database-driven with admin UI for editing
+- **PDF viewing**: react-pdf or iframe-based inline viewer
+- **File storage**: Supabase Storage for documents, brochures, photos

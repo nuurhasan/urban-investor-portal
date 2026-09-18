@@ -2,7 +2,6 @@ import { useSiteContent } from "@/hooks/useSiteContent";
 import EditableText from "@/components/EditableText";
 import GovernancePdfViewer from "@/components/GovernancePdfViewer";
 import BoardRoster from "@/components/BoardRoster";
-import DocumentLibrary from "@/components/DocumentLibrary";
 import { Card, CardContent } from "@/components/ui/card";
 import { Landmark, Heart, Shield } from "lucide-react";
 
@@ -70,9 +69,6 @@ const Governance = () => {
 
       {/* Board & Leadership */}
       <BoardRoster />
-
-      {/* Governance Document Library */}
-      <DocumentLibrary category="governance" title="Governance Documents" />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBoardMembers, useUpsertBoardMember, useDeleteBoardMember, type BoardMember } from "@/hooks/useBoardMembers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,10 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Users, Plus, Pencil, Trash2, User, Upload, Loader2 } from "lucide-react";
+import { Users, Plus, Pencil, Trash2, User } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/integrations/supabase/client";
 
 const emptyMember = { name: "", title: "", bio: "", photo_url: "" };
 
@@ -20,32 +19,6 @@ const BoardRoster = () => {
   const remove = useDeleteBoardMember();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<Partial<BoardMember>>(emptyMember);
-  const [uploading, setUploading] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      toast({ title: "Please select an image file", variant: "destructive" });
-      return;
-    }
-    setUploading(true);
-    try {
-      const ext = file.name.split(".").pop() ?? "jpg";
-      const path = `board/${crypto.randomUUID()}.${ext}`;
-      const { error } = await supabase.storage.from("facility-photos").upload(path, file, { upsert: false });
-      if (error) throw error;
-      const { data } = supabase.storage.from("facility-photos").getPublicUrl(path);
-      setDraft((d) => ({ ...d, photo_url: data.publicUrl }));
-      toast({ title: "Photo uploaded" });
-    } catch (err) {
-      toast({ title: `Upload failed: ${(err as Error).message}`, variant: "destructive" });
-    } finally {
-      setUploading(false);
-      if (fileRef.current) fileRef.current.value = "";
-    }
-  };
 
   const handleSave = () => {
     if (!draft.name || !draft.title) {
@@ -123,27 +96,7 @@ const BoardRoster = () => {
             <Input placeholder="Full Name" value={draft.name ?? ""} onChange={e => setDraft(d => ({ ...d, name: e.target.value }))} />
             <Input placeholder="Title / Role" value={draft.title ?? ""} onChange={e => setDraft(d => ({ ...d, title: e.target.value }))} />
             <Textarea placeholder="Short bio (optional)" value={draft.bio ?? ""} onChange={e => setDraft(d => ({ ...d, bio: e.target.value }))} />
-
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-muted-foreground">Photo</label>
-              <div className="flex items-center gap-3">
-                {draft.photo_url ? (
-                  <img src={draft.photo_url} alt="Preview" className="h-16 w-16 rounded-full object-cover border" />
-                ) : (
-                  <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center border">
-                    <User className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                )}
-                <div className="flex-1 space-y-2">
-                  <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-                  <Button type="button" variant="outline" size="sm" onClick={() => fileRef.current?.click()} disabled={uploading}>
-                    {uploading ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Upload className="h-3.5 w-3.5 mr-1" />}
-                    {uploading ? "Uploading…" : draft.photo_url ? "Replace photo" : "Upload photo"}
-                  </Button>
-                  <Input placeholder="…or paste a photo URL" value={draft.photo_url ?? ""} onChange={e => setDraft(d => ({ ...d, photo_url: e.target.value }))} className="h-8 text-xs" />
-                </div>
-              </div>
-            </div>
+            <Input placeholder="Photo URL (optional)" value={draft.photo_url ?? ""} onChange={e => setDraft(d => ({ ...d, photo_url: e.target.value }))} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>

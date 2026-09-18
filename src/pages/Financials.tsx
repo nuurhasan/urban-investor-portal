@@ -39,7 +39,7 @@ const Financials = () => {
       </div>
 
       {/* Document Library */}
-      <DocumentLibrary excludeCategory="governance" />
+      <DocumentLibrary />
     </div>
   );
 };

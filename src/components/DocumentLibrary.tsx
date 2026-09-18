@@ -16,29 +16,15 @@ import { toast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 
-interface DocumentLibraryProps {
-  category?: string;
-  excludeCategory?: string;
-  title?: string;
-  fileTypes?: string;
-  showCategoryField?: boolean;
-}
-
-const DocumentLibrary = ({
-  category: fixedCategory,
-  excludeCategory,
-  title = "Document Library",
-  fileTypes = ".pdf,.xlsx,.xls,.csv,.docx",
-  showCategoryField = true,
-}: DocumentLibraryProps = {}) => {
+const DocumentLibrary = () => {
   const { isAdmin } = useAuth();
-  const { data: docs, isLoading } = useFinancialDocuments({ category: fixedCategory, excludeCategory });
+  const { data: docs, isLoading } = useFinancialDocuments();
   const addDoc = useAddFinancialDocument();
   const removeDoc = useDeleteFinancialDocument();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState(fixedCategory ?? "general");
+  const [category, setCategory] = useState("general");
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [viewerUrl, setViewerUrl] = useState<string | null>(null);
@@ -49,8 +35,7 @@ const DocumentLibrary = ({
       return;
     }
     setUploading(true);
-    const folder = fixedCategory ?? "financials";
-    const storagePath = `${folder}/${Date.now()}-${file.name}`;
+    const storagePath = `financials/${Date.now()}-${file.name}`;
     const { error: uploadErr } = await supabase.storage.from("documents").upload(storagePath, file);
     if (uploadErr) {
       toast({ title: "Upload failed", description: uploadErr.message, variant: "destructive" });
@@ -101,7 +86,7 @@ const DocumentLibrary = ({
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-lg font-heading text-secondary flex items-center gap-2">
             <FolderOpen className="h-5 w-5 text-primary" />
-            {title}
+            Document Library
           </CardTitle>
           {isAdmin && (
             <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
@@ -165,7 +150,7 @@ const DocumentLibrary = ({
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Upload Document</DialogTitle>
+              <DialogTitle>Upload Financial Document</DialogTitle>
             </DialogHeader>
             <div className="space-y-3">
               <Input placeholder="Document name" value={name} onChange={(e) => setName(e.target.value)} />
@@ -174,14 +159,12 @@ const DocumentLibrary = ({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
-              {showCategoryField && !fixedCategory && (
-                <Input
-                  placeholder="Category (e.g. annual-report, tax)"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                />
-              )}
-              <Input type="file" accept={fileTypes} onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+              <Input
+                placeholder="Category (e.g. annual-report, tax)"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+              />
+              <Input type="file" accept=".pdf,.xlsx,.xls,.csv,.docx" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
@@ -194,13 +177,7 @@ const DocumentLibrary = ({
       </Card>
 
       {/* PDF Viewer Lightbox */}
-      <Dialog
-        open={!!viewerUrl}
-        onOpenChange={(open) => {
-          if (!open) setViewerUrl(null);
-          else window.scrollTo({ top: 0, behavior: "smooth" });
-        }}
-      >
+      <Dialog open={!!viewerUrl} onOpenChange={() => setViewerUrl(null)}>
         <DialogContent className="max-w-4xl h-[85vh] flex flex-col p-0">
           <DialogHeader className="px-6 pt-6 pb-2 flex flex-row items-center justify-between">
             <DialogTitle>Document Viewer</DialogTitle>
@@ -208,7 +185,7 @@ const DocumentLibrary = ({
           <div className="flex-1 px-6 pb-6 min-h-0">
             {viewerUrl && (
               <iframe
-                src={`${viewerUrl}#view=FitH&toolbar=1&navpanes=0&page=1`}
+                src={viewerUrl}
                 className="w-full h-full rounded-md border border-border"
                 title="Document viewer"
               />

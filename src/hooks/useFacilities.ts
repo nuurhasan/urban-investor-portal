@@ -90,28 +90,6 @@ export function useFacilityPhotos(facilityId: string | undefined) {
 
 // --- Mutations ---
 
-export function useAddFacility() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (facility: { name: string; city?: string | null; state?: string | null }) => {
-      const { error } = await supabase.from("facilities").insert(facility);
-      if (error) throw error;
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["facilities"] }),
-  });
-}
-
-export function useDeleteFacility() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("facilities").delete().eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["facilities"] }),
-  });
-}
-
 export function useUpdateFacility() {
   const qc = useQueryClient();
   return useMutation({
