@@ -94,6 +94,21 @@ export interface CreateUserInput {
   company?: string;
 }
 
+async function getFunctionErrorMessage(error: unknown, fallback: string) {
+  const context = (error as { context?: Response } | null)?.context;
+  if (context) {
+    try {
+      const body = await context.clone().json() as { error?: string };
+      if (body.error) return body.error;
+    } catch {
+      // The response was not JSON, so use the normal error message below.
+    }
+  }
+  return error instanceof Error && error.message !== "Edge Function returned a non-2xx status code"
+    ? error.message
+    : fallback;
+}
+
 export function useCreateUser() {
   const qc = useQueryClient();
   return useMutation({
@@ -101,7 +116,9 @@ export function useCreateUser() {
       const { data, error } = await supabase.functions.invoke("admin-create-user", {
         body: input,
       });
-      if (error) throw error;
+      if (error) {
+        throw new Error(await getFunctionErrorMessage(error, "The account could not be created. Please try again."));
+      }
       if (data && data.ok === false) throw new Error(data.error ?? "Failed to create user");
     },
     onSuccess: () => {
