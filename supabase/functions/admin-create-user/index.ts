@@ -1,11 +1,27 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { createClient } from "npm:@supabase/supabase-js@2.101.1";
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 type Role = "admin" | "advisor" | "investor";
+
+const jsonResponse = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+
+const friendlyAuthError = (message: string) => {
+  const normalized = message.toLowerCase();
+  if (normalized.includes("already been registered") || normalized.includes("already registered")) {
+    return { status: 409, message: "A user with this email address already exists." };
+  }
+  if (normalized.includes("weak") || normalized.includes("easy to guess") || normalized.includes("pwned")) {
+    return { status: 422, message: "This temporary password is too common or has appeared in a data breach. Generate a new password and try again." };
+  }
+  if (normalized.includes("password")) {
+    return { status: 422, message };
+  }
+  return { status: 400, message };
+};
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -13,10 +29,7 @@ Deno.serve(async (req) => {
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Missing authorization" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ ok: false, error: "Your session has expired. Please sign in again." }, 401);
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -26,18 +39,11 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // Decode JWT payload to get caller user id (signature already validated upstream by anon key auth)
     const token = authHeader.replace(/^Bearer\s+/i, "");
-    let callerId: string;
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      callerId = payload.sub;
-      if (!callerId) throw new Error("no sub claim");
-    } catch (e) {
-      return new Response(JSON.stringify({ error: "Unauthorized", detail: String((e as Error).message) }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    const { data: claimsData, error: claimsError } = await admin.auth.getClaims(token);
+    const callerId = claimsData?.claims?.sub;
+    if (claimsError || typeof callerId !== "string") {
+      return jsonResponse({ ok: false, error: "Your session has expired. Please sign in again." }, 401);
     }
 
     const { data: isAdmin } = await admin.rpc("has_role", {
@@ -45,10 +51,7 @@ Deno.serve(async (req) => {
       _role: "admin",
     });
     if (!isAdmin) {
-      return new Response(JSON.stringify({ error: "Forbidden: admin role required" }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ ok: false, error: "Only an administrator can create users." }, 403);
     }
 
     // Validate input
@@ -61,24 +64,16 @@ Deno.serve(async (req) => {
 
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRe.test(email)) {
-      return new Response(JSON.stringify({ error: "Invalid email" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ ok: false, error: "Enter a valid email address." }, 400);
     }
     if (password.length < 8) {
-      return new Response(JSON.stringify({ error: "Password must be at least 8 characters" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ ok: false, error: "The temporary password must be at least 8 characters." }, 400);
     }
     if (!fullName) {
-      return new Response(JSON.stringify({ error: "Full name required" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ ok: false, error: "Enter the user's full name." }, 400);
     }
     if (!role || !["admin", "advisor", "investor"].includes(role)) {
-      return new Response(JSON.stringify({ error: "Invalid role" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ ok: false, error: "Select a valid user role." }, 400);
     }
 
     // Create the user with email pre-confirmed (admin-provisioned)
@@ -89,7 +84,8 @@ Deno.serve(async (req) => {
       user_metadata: { full_name: fullName },
     });
     if (createErr || !created.user) {
-      throw createErr ?? new Error("Failed to create user");
+      const authError = friendlyAuthError(createErr?.message ?? "The account could not be created.");
+      return jsonResponse({ ok: false, error: authError.message }, authError.status);
     }
 
     const newUserId = created.user.id;
@@ -105,23 +101,23 @@ Deno.serve(async (req) => {
         company,
       })
       .eq("user_id", newUserId);
-    if (profErr) throw profErr;
+    if (profErr) {
+      await admin.auth.admin.deleteUser(newUserId);
+      throw profErr;
+    }
 
     // Assign role (idempotent)
     const { error: roleErr } = await admin
       .from("user_roles")
       .insert({ user_id: newUserId, role });
     if (roleErr && !String(roleErr.message).toLowerCase().includes("duplicate")) {
+      await admin.auth.admin.deleteUser(newUserId);
       throw roleErr;
     }
 
-    return new Response(JSON.stringify({ ok: true, userId: newUserId }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return jsonResponse({ ok: true, userId: newUserId });
   } catch (e) {
-    return new Response(JSON.stringify({ ok: false, error: String((e as Error).message ?? e) }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    console.error("admin-create-user failed", e);
+    return jsonResponse({ ok: false, error: "The account could not be created. Please try again." }, 500);
   }
 });

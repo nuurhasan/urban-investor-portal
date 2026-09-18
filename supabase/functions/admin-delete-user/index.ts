@@ -1,9 +1,5 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { createClient } from "npm:@supabase/supabase-js@2.101.1";
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -24,14 +20,10 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // Decode JWT payload to get caller user id
     const token = authHeader.replace(/^Bearer\s+/i, "");
-    let callerId: string;
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      callerId = payload.sub;
-      if (!callerId) throw new Error("no sub claim");
-    } catch (e) {
+    const { data: claimsData, error: claimsError } = await admin.auth.getClaims(token);
+    const callerId = claimsData?.claims?.sub;
+    if (claimsError || typeof callerId !== "string") {
       return new Response(JSON.stringify({ error: "Unauthorized", detail: String((e as Error).message) }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
