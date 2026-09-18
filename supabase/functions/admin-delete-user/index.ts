@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
     const { data: claimsData, error: claimsError } = await admin.auth.getClaims(token);
     const callerId = claimsData?.claims?.sub;
     if (claimsError || typeof callerId !== "string") {
-      return new Response(JSON.stringify({ error: "Unauthorized", detail: String((e as Error).message) }), {
+      return new Response(JSON.stringify({ error: "Your session has expired. Please sign in again." }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
