@@ -3,14 +3,31 @@ import EditableText from "@/components/EditableText";
 import BrochureViewer from "@/components/BrochureViewer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, Download, Mail } from "lucide-react";
+import { Download } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useKpiValues } from "@/hooks/useKpiValues";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 const Index = () => {
   const { data: welcomeTitle, isLoading: titleLoading } = useSiteContent("welcome_title");
   const { data: welcomeBody, isLoading: bodyLoading } = useSiteContent("welcome_body");
   const { data: kpis, isLoading: kpisLoading } = useKpiValues();
+
+  const handleDownloadBrochure = async () => {
+    const { data, error } = await supabase.storage
+      .from("documents")
+      .createSignedUrl("brochure.pdf", 3600, { download: "urban-self-storage-brochure.pdf" });
+    if (error || !data?.signedUrl) {
+      toast({
+        title: "Brochure not available",
+        description: "No brochure has been uploaded yet.",
+        variant: "destructive",
+      });
+      return;
+    }
+    window.open(data.signedUrl, "_blank");
+  };
 
   return (
     <div className="space-y-8">
@@ -65,17 +82,9 @@ const Index = () => {
 
       {/* Quick Actions */}
       <section className="flex flex-wrap gap-3">
-        <Button className="rounded-md">
-          <FileText className="mr-2 h-4 w-4" />
-          View Latest Report
-        </Button>
-        <Button variant="secondary" className="rounded-md">
+        <Button onClick={handleDownloadBrochure} className="rounded-md">
           <Download className="mr-2 h-4 w-4" />
           Download Brochure
-        </Button>
-        <Button variant="outline" className="rounded-md">
-          <Mail className="mr-2 h-4 w-4" />
-          Contact Us
         </Button>
       </section>
     </div>

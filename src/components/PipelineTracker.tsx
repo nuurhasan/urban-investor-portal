@@ -18,6 +18,7 @@ const STATUS_LABELS: Record<string, string> = {
   due_diligence: "Due Diligence",
   under_contract: "Under Contract",
   completed: "Completed",
+  declined: "Declined",
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -25,9 +26,10 @@ const STATUS_COLORS: Record<string, string> = {
   due_diligence: "bg-accent text-accent-foreground",
   under_contract: "bg-primary/20 text-primary",
   completed: "bg-green-100 text-green-800",
+  declined: "bg-pink-100 text-pink-800",
 };
 
-const STAGES = ["prospect", "due_diligence", "under_contract", "completed"] as const;
+const STAGES = ["prospect", "due_diligence", "under_contract", "completed", "declined"] as const;
 
 type FormData = {
   name: string;
@@ -102,7 +104,7 @@ const PipelineTracker = () => {
   return (
     <div className="space-y-6">
       {/* Pipeline Funnel */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {stageCounts.map(({ stage, count }) => (
           <Card key={stage} className="text-center">
             <CardContent className="pt-4 pb-3">

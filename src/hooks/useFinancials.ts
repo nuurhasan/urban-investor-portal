@@ -61,14 +61,16 @@ export function useDeleteFinancialMetric() {
   });
 }
 
-export function useFinancialDocuments() {
+export function useFinancialDocuments(opts?: { category?: string; excludeCategory?: string }) {
+  const category = opts?.category;
+  const excludeCategory = opts?.excludeCategory;
   return useQuery({
-    queryKey: ["financial_documents"],
+    queryKey: ["financial_documents", category ?? "all", excludeCategory ?? "none"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("financial_documents")
-        .select("*")
-        .order("sort_order");
+      let query = supabase.from("financial_documents").select("*").order("created_at", { ascending: false });
+      if (category) query = query.eq("category", category);
+      if (excludeCategory) query = query.neq("category", excludeCategory);
+      const { data, error } = await query;
       if (error) throw error;
       return data as FinancialDocument[];
     },

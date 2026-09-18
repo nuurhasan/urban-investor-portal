@@ -96,6 +96,8 @@ const FacilityDetail = ({ facility, onBack }: Props) => {
   const [draftCity, setDraftCity] = useState(facility.city ?? "");
   const [draftState, setDraftState] = useState(facility.state ?? "");
   const [draftPostcode, setDraftPostcode] = useState(facility.postcode ?? "");
+  const [draftLat, setDraftLat] = useState(facility.latitude?.toString() ?? "");
+  const [draftLng, setDraftLng] = useState(facility.longitude?.toString() ?? "");
 
   const [editingOverview, setEditingOverview] = useState(false);
   const [draftOverview, setDraftOverview] = useState(facility.overview_text ?? "");
@@ -111,8 +113,23 @@ const FacilityDetail = ({ facility, onBack }: Props) => {
   };
 
   const saveHeader = () => {
+    const lat = draftLat.trim() === "" ? null : parseFloat(draftLat);
+    const lng = draftLng.trim() === "" ? null : parseFloat(draftLng);
+    if ((draftLat && Number.isNaN(lat)) || (draftLng && Number.isNaN(lng))) {
+      toast({ title: "Latitude and longitude must be numbers", variant: "destructive" });
+      return;
+    }
     updateFacility.mutate(
-      { id: facility.id, name: draftName, address: draftAddress, city: draftCity, state: draftState, postcode: draftPostcode },
+      {
+        id: facility.id,
+        name: draftName,
+        address: draftAddress,
+        city: draftCity,
+        state: draftState,
+        postcode: draftPostcode,
+        latitude: lat,
+        longitude: lng,
+      },
       {
         onSuccess: () => { setEditingHeader(false); toast({ title: "Updated" }); },
         onError: () => toast({ title: "Update failed", variant: "destructive" }),
@@ -146,6 +163,14 @@ const FacilityDetail = ({ facility, onBack }: Props) => {
             <Input value={draftState} onChange={(e) => setDraftState(e.target.value)} placeholder="State" />
             <Input value={draftPostcode} onChange={(e) => setDraftPostcode(e.target.value)} placeholder="Postcode" />
           </div>
+          <div className="grid grid-cols-2 gap-2">
+            <Input value={draftLat} onChange={(e) => setDraftLat(e.target.value)} placeholder="Latitude (e.g. -33.366)" />
+            <Input value={draftLng} onChange={(e) => setDraftLng(e.target.value)} placeholder="Longitude (e.g. 115.671)" />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Tip: when you change the address, also update lat/lng so the map pin moves.
+            Find coordinates via Google Maps → right-click location → click the lat/lng to copy.
+          </p>
           <div className="flex gap-1">
             <Button size="sm" onClick={saveHeader}><Check className="h-4 w-4 mr-1" /> Save</Button>
             <Button size="sm" variant="ghost" onClick={() => setEditingHeader(false)}><X className="h-4 w-4 mr-1" /> Cancel</Button>

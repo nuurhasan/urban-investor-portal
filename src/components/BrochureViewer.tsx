@@ -52,7 +52,7 @@ const BrochureViewer = () => {
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg font-heading text-secondary flex items-center gap-2">
           <FileText className="h-5 w-5 text-primary" />
-          Company Brochure
+          Investor Information
         </CardTitle>
         {isAdmin && (
           <div className="flex gap-2">
@@ -72,9 +72,9 @@ const BrochureViewer = () => {
       </CardHeader>
       <CardContent>
         {loading ? (
-          <Skeleton className="w-full h-[400px] rounded-md" />
+          <Skeleton className="w-full h-[1100px] rounded-md" />
         ) : url ? (
-          <iframe src={url} className="w-full h-[400px] rounded-md border border-border" title="Brochure" />
+          <iframe src={`${url}#view=FitH&toolbar=1&navpanes=0&page=1`} className="w-full h-[1100px] rounded-md border border-border" title="Brochure" />
         ) : (
           <div className="flex items-center justify-center h-[200px] rounded-md border border-dashed border-border text-muted-foreground text-sm">
             No brochure uploaded yet.{isAdmin && " Use the Upload button above."}
