@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ArrowLeft, DollarSign, Box, TrendingUp, BarChart3, Ruler, Pencil, Check, X } from "lucide-react";
+import { ArrowLeft, DollarSign, Box, TrendingUp, BarChart3, Ruler, Pencil, Check, X, Loader2 } from "lucide-react";
+import { geocodeAddress } from "@/lib/geocode";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

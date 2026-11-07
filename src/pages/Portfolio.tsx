@@ -29,6 +29,8 @@ const Portfolio = () => {
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
+  const [address, setAddress] = useState("");
+  const [postcode, setPostcode] = useState("");
 
   const handleMapSelect = useCallback((id: string) => {
     setSelectedId(id);
@@ -38,6 +40,8 @@ const Portfolio = () => {
     setName("");
     setCity("");
     setState("");
+    setAddress("");
+    setPostcode("");
   };
 
   const handleAdd = (e: React.FormEvent) => {
@@ -47,10 +51,23 @@ const Portfolio = () => {
       return;
     }
     addFacility.mutate(
-      { name: name.trim(), city: city.trim() || null, state: state.trim() || null },
       {
-        onSuccess: () => {
-          toast({ title: "Asset added", description: "Open the new card to fill in details." });
+        name: name.trim(),
+        address: address.trim() || null,
+        city: city.trim() || null,
+        state: state.trim() || null,
+        postcode: postcode.trim() || null,
+      },
+      {
+        onSuccess: (res) => {
+          toast(
+            res?.located
+              ? { title: "Asset added", description: "It's now pinned on the map." }
+              : {
+                  title: "Asset added — not on map yet",
+                  description: "We couldn't find that address. Open the card to check it or enter coordinates.",
+                }
+          );
           setAddOpen(false);
           resetForm();
         },
@@ -152,7 +169,17 @@ const Portfolio = () => {
                 placeholder="e.g. Urban Self Storage Newcastle"
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="add-asset-address">Street address</Label>
+              <Input
+                id="add-asset-address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                maxLength={200}
+                placeholder="e.g. 12 Example Rd"
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="add-asset-city">City</Label>
                 <Input
@@ -169,6 +196,15 @@ const Portfolio = () => {
                   value={state}
                   onChange={(e) => setState(e.target.value)}
                   maxLength={40}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="add-asset-postcode">Postcode</Label>
+                <Input
+                  id="add-asset-postcode"
+                  value={postcode}
+                  onChange={(e) => setPostcode(e.target.value)}
+                  maxLength={10}
                 />
               </div>
             </div>
