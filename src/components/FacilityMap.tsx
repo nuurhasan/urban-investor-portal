@@ -74,7 +74,7 @@ const FacilityMap = ({ facilities, selectedId, onSelect }: Props) => {
   return (
     <div
       ref={mapRef}
-      className="h-[300px] w-full rounded-lg border border-border lg:h-[400px]"
+      className="relative z-0 isolate h-[300px] w-full rounded-lg border border-border lg:h-[400px]"
     />
   );
 };
