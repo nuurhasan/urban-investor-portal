@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { geocodeAddress } from "@/lib/geocode";
 
 export interface Facility {
   id: string;
@@ -93,9 +94,19 @@ export function useFacilityPhotos(facilityId: string | undefined) {
 export function useAddFacility() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (facility: { name: string; city?: string | null; state?: string | null }) => {
-      const { error } = await supabase.from("facilities").insert(facility);
+    mutationFn: async (facility: {
+      name: string;
+      address?: string | null;
+      city?: string | null;
+      state?: string | null;
+      postcode?: string | null;
+    }) => {
+      const coords = await geocodeAddress(facility);
+      const { error } = await supabase
+        .from("facilities")
+        .insert({ ...facility, latitude: coords?.latitude ?? null, longitude: coords?.longitude ?? null });
       if (error) throw error;
+      return { located: !!coords };
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["facilities"] }),
   });

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ArrowLeft, DollarSign, Box, TrendingUp, BarChart3, Ruler, Pencil, Check, X } from "lucide-react";
+import { ArrowLeft, DollarSign, Box, TrendingUp, BarChart3, Ruler, Pencil, Check, X, Loader2 } from "lucide-react";
+import { geocodeAddress } from "@/lib/geocode";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -99,6 +100,7 @@ const FacilityDetail = ({ facility, onBack }: Props) => {
   const [draftLat, setDraftLat] = useState(facility.latitude?.toString() ?? "");
   const [draftLng, setDraftLng] = useState(facility.longitude?.toString() ?? "");
 
+  const [locating, setLocating] = useState(false);
   const [editingOverview, setEditingOverview] = useState(false);
   const [draftOverview, setDraftOverview] = useState(facility.overview_text ?? "");
 
@@ -112,12 +114,38 @@ const FacilityDetail = ({ facility, onBack }: Props) => {
     );
   };
 
-  const saveHeader = () => {
-    const lat = draftLat.trim() === "" ? null : parseFloat(draftLat);
-    const lng = draftLng.trim() === "" ? null : parseFloat(draftLng);
+  const saveHeader = async () => {
+    let lat = draftLat.trim() === "" ? null : parseFloat(draftLat);
+    let lng = draftLng.trim() === "" ? null : parseFloat(draftLng);
     if ((draftLat && Number.isNaN(lat)) || (draftLng && Number.isNaN(lng))) {
       toast({ title: "Latitude and longitude must be numbers", variant: "destructive" });
       return;
+    }
+    const addressChanged =
+      draftAddress !== (facility.address ?? "") ||
+      draftCity !== (facility.city ?? "") ||
+      draftState !== (facility.state ?? "") ||
+      draftPostcode !== (facility.postcode ?? "");
+    const coordsEdited =
+      draftLat !== (facility.latitude?.toString() ?? "") ||
+      draftLng !== (facility.longitude?.toString() ?? "");
+    if ((addressChanged && !coordsEdited) || (lat == null && lng == null)) {
+      setLocating(true);
+      const coords = await geocodeAddress({
+        address: draftAddress, city: draftCity, state: draftState, postcode: draftPostcode,
+      });
+      setLocating(false);
+      if (coords) {
+        lat = coords.latitude;
+        lng = coords.longitude;
+        setDraftLat(String(lat));
+        setDraftLng(String(lng));
+      } else if (addressChanged) {
+        toast({
+          title: "Couldn't find that address on the map",
+          description: "Saved anyway. Check the address or enter latitude/longitude manually.",
+        });
+      }
     }
     updateFacility.mutate(
       {
@@ -168,11 +196,13 @@ const FacilityDetail = ({ facility, onBack }: Props) => {
             <Input value={draftLng} onChange={(e) => setDraftLng(e.target.value)} placeholder="Longitude (e.g. 115.671)" />
           </div>
           <p className="text-xs text-muted-foreground">
-            Tip: when you change the address, also update lat/lng so the map pin moves.
-            Find coordinates via Google Maps → right-click location → click the lat/lng to copy.
+            The map pin is placed automatically from the address when you save. Latitude/longitude
+            are optional — only fill them in to override the automatic location.
           </p>
           <div className="flex gap-1">
-            <Button size="sm" onClick={saveHeader}><Check className="h-4 w-4 mr-1" /> Save</Button>
+            <Button size="sm" onClick={saveHeader} disabled={locating || updateFacility.isPending}>
+              {locating ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Check className="h-4 w-4 mr-1" />} Save
+            </Button>
             <Button size="sm" variant="ghost" onClick={() => setEditingHeader(false)}><X className="h-4 w-4 mr-1" /> Cancel</Button>
           </div>
         </div>

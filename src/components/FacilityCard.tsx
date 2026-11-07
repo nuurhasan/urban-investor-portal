@@ -75,6 +75,11 @@ const FacilityCard = ({ facility, isSelected, onClick }: FacilityCardProps) => {
                   {[facility.city, facility.state].filter(Boolean).join(", ")}
                 </span>
               </p>
+              {(facility.latitude == null || facility.longitude == null) && (
+                <Badge variant="outline" className="mt-1 text-[10px] text-muted-foreground">
+                  Not on map
+                </Badge>
+              )}
             </div>
             <Badge
               variant={facility.status === "active" ? "default" : "secondary"}
